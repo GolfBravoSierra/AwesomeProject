@@ -1,0 +1,34 @@
+version: latest
+services:
+  app:
+    image: node:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    working_dir: /usr/src/app
+    ports:
+      - "8081:8081"
+    command: npx react-native expo start --web
+    networks: 
+      - mynetwork
+  db:
+    image: mysql:8.3.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+    networks:
+      - mynetwork   
+networks:
+  mynetwork:
+    driver: bridge
